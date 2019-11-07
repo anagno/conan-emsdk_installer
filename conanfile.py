@@ -4,10 +4,9 @@
 from conans import ConanFile, tools
 import os
 
-
 class EmSDKInstallerConan(ConanFile):
     name = "emsdk_installer"
-    version = "1.38.29"
+    version = "1.38.48"
     description = "Emscripten is an Open Source LLVM to JavaScript compiler"
     url = "https://github.com/bincrafters/conan-emsdk_installer"
     homepage = "https://github.com/kripken/emscripten"
@@ -25,8 +24,8 @@ class EmSDKInstallerConan(ConanFile):
     _source_subfolder = "source_subfolder"
 
     def source(self):
-        commit = "4eeff61368e7471ae543474e2c36869def9a29fc"
-        sha256 = "cb0cce2a985c7b244f80f39be0f328ed2d68e0eb42cdf69fb5b50d68dd68a00f"
+        commit = "7f9af7bd1af0b4c90abe9fce1b7c32566c0722f6"
+        sha256 = "ecb4532445ff3dc985c4d374b3586847e59d38dde2b1b0455482d4c27e3a3f38"
         source_url = 'https://github.com/emscripten-core/emsdk/archive/%s.tar.gz' % commit
         tools.get(source_url, sha256=sha256)
         extracted_folder = "emsdk-%s" % commit
@@ -83,10 +82,10 @@ class EmSDKInstallerConan(ConanFile):
             self._run('%s activate sdk-%s-64bit --embedded' % (emsdk, self.version))
 
     def package(self):
-        self.copy(pattern="LICENSE", dst="licenses", src=self._source_subfolder)
+        self.copy(pattern="LICENSE.md", dst="licenses")
         self.copy(pattern='*', dst='.', src=self._source_subfolder)
         emsdk = self.package_folder
-        emscripten = os.path.join(emsdk, 'emscripten', self.version)
+        emscripten = os.path.join(emsdk, 'fastcomp', 'emscripten')
         toolchain = os.path.join(emscripten, 'cmake', 'Modules', 'Platform', 'Emscripten.cmake')
         # allow to find conan libraries
         tools.replace_in_file(toolchain,
@@ -101,7 +100,7 @@ class EmSDKInstallerConan(ConanFile):
 
     def _define_tool_var(self, name, value):
         suffix = '.bat' if os.name == 'nt' else ''
-        path = os.path.join(self.package_folder, 'emscripten', self.version, '%s%s' % (value, suffix))
+        path = os.path.join(self.package_folder, 'fastcomp', 'emscripten','%s%s' % (value, suffix))
         self._chmod_plus_x(path)
         self.output.info('Creating %s environment variable: %s' % (name, path))
         return path
@@ -109,7 +108,7 @@ class EmSDKInstallerConan(ConanFile):
     def package_info(self):
         emsdk = self.package_folder
         em_config = os.path.join(emsdk, '.emscripten')
-        emscripten = os.path.join(emsdk, 'emscripten', self.version)
+        emscripten = os.path.join(emsdk, 'fastcomp', 'emscripten')
         em_cache = os.path.join(emsdk, '.emscripten_cache')
         toolchain = os.path.join(emscripten, 'cmake', 'Modules', 'Platform', 'Emscripten.cmake')
 
